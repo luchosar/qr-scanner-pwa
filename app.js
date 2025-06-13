@@ -116,19 +116,83 @@ document.addEventListener('DOMContentLoaded', () => {
                     startScanBtn.disabled = false;
                     startScanBtn.style.display = "";
                 } else {
-                    // Si no existe, lo crea
+                    // Si no existe, pregunta en qué auto crearla
                     const now = new Date();
-                    const nuevo = {
-                        creado: `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}`,
-                        codigo: decodedText
-                    };
-                    db.collection("Piezas").doc(decodedText).set(nuevo)
-                        .then(() => {
-                        resultText.innerHTML = `<span style='font-size:1.1em;color:#ff0;'>🆕 Código creado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify(nuevo, null, 2)}</pre>`;
-                        resultText.className = 'success';
+                    const tipoMap = { '1': 'chasis', '2': 'motor', '3': 'transmision' };
+                    const tipo = tipoMap[decodedText.charAt(0)] || '';
 
-                        // Muestra el formulario HTML ya existente
-                        const form = document.getElementById('nuevo-codigo-form');
+                    // Mostrar selector de autos
+                    const resultHtml = [];
+                    resultHtml.push(`<span style='font-size:1.1em;color:#ff0;'>🆕 Código nuevo:</span><br><b>${decodedText}</b>`);
+                    // Obtener autos del selector existente
+                    const autoSelector = document.getElementById('auto-selector');
+                    const autoOptions = Array.from(autoSelector.options).filter(opt => opt.value);
+                    if (autoOptions.length === 0) {
+                        resultText.innerHTML = '<span style="color:#f33">No hay autos disponibles para asignar esta pieza.</span>';
+                        resultText.className = 'error';
+                        startScanBtn.disabled = false;
+                        startScanBtn.style.display = "";
+                        return;
+                    }
+                    resultHtml.push('<div style="margin:12px 0">Selecciona el auto donde crear la pieza:<br>');
+                    resultHtml.push('<select id="select-auto-crear" style="margin-top:6px;">' + autoOptions.map(opt => `<option value="${opt.value}">${opt.text}</option>`).join('') + '</select>');
+                    resultHtml.push('</div>');
+                    resultHtml.push('<button id="confirmar-crear-pieza" class="upload-button" style="width:auto;">Crear pieza</button>');
+                    resultText.innerHTML = resultHtml.join('');
+                    resultText.className = '';
+                    // Esperar confirmación del usuario
+                    document.getElementById('confirmar-crear-pieza').onclick = function() {
+                        const auto_id = document.getElementById('select-auto-crear').value;
+                        const nuevo = {
+                            creado: `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}`,
+                            tipo: tipo,
+                            estado: true,
+                            auto_id: auto_id
+                        };
+                        db.collection("Piezas").doc(decodedText).set(nuevo)
+                            .then(() => {
+                                resultText.innerHTML = `<span style='font-size:1.1em;color:#ff0;'>🆕 Código creado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify(nuevo, null, 2)}</pre>`;
+                                resultText.className = 'success';
+                                // Muestra el formulario HTML ya existente
+                                const form = document.getElementById('nuevo-codigo-form');
+                                form.style.display = '';
+                                form.kilometros.value = '';
+                                form.nota.value = '';
+                                form.onsubmit = function(e) {
+                                    e.preventDefault();
+                                    const kilometros = parseFloat(form.kilometros.value);
+                                    const nota = form.nota.value.trim();
+                                    db.collection("Piezas").doc(decodedText).update({ kilometros, nota })
+                                    .then(() => {
+                                        // Muestra los datos actualizados en lista visual, sin comillas
+                                        let updated = { ...nuevo, kilometros, nota };
+                                        let html = `<span style='font-size:1.1em;color:#0f0;'>✅ Código actualizado:</span><br><b>${decodedText}</b><div class='data-list'>`;
+                                        Object.entries(updated).forEach(([key, value]) => {
+                                            html += `<div class='data-item'><span class='data-key'>${key}:</span> <span class='data-value'>${value}</span></div>`;
+                                        });
+                                        html += `</div>`;
+                                        resultText.innerHTML = html;
+                                        form.style.display = 'none';
+                                        startScanBtn.disabled = false;
+                                        startScanBtn.style.display = "";
+                                    })
+                                    .catch((err) => {
+                                        resultText.innerHTML += `<div style='color:#f33;margin-top:8px;'>Error al guardar: ${err}</div>`;
+                                    });
+                                };
+                                // El botón solo vuelve a aparecer tras guardar
+                                startScanBtn.disabled = true;
+                                startScanBtn.style.display = "none";
+                            })
+                            .catch((err) => {
+                                resultText.innerText = `Error creando el código en Firestore: ${err}`;
+                                resultText.className = 'error';
+                                startScanBtn.disabled = false;
+                                startScanBtn.style.display = "";
+                            });
+                    };
+                }
+
                         form.style.display = '';
                         form.kilometros.value = '';
                         form.nota.value = '';
@@ -172,7 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 startScanBtn.disabled = false;
                 startScanBtn.style.display = "";
             });
-    }
 
     function onScanFailure(error) {
         if (!scanCompleted) {
@@ -260,4 +323,3 @@ document.addEventListener('DOMContentLoaded', () => {
     startScanBtn.disabled = false;
     startScanBtn.style.display = "";
     qrReaderDiv.innerHTML = "";
-});
