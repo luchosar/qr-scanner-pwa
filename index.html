@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4a90e2">
+    <title>Escaner QR</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="container">
+        <h1>Escaner QR</h1>
+        <div class="scanner-container">
+            <video id="qr-video" playsinline></video>
+            <canvas id="qr-canvas" hidden></canvas>
+        </div>
+        <button id="start-button">Iniciar Escaneo</button>
+        <div class="result">
+            <h2>Resultado:</h2>
+            <p id="result-text">-</p>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
