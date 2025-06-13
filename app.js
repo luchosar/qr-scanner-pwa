@@ -17,6 +17,10 @@ if (!firebase.apps.length) {
 const db = firebase.firestore();
 
 document.addEventListener('DOMContentLoaded', () => {
+    const firestoreStatus = document.getElementById('firestore-status');
+    db.collection("codigos").limit(1).get()
+      .then(() => firestoreStatus.classList.add("ok"))
+      .catch(() => firestoreStatus.classList.remove("ok"));
     const resultText = document.getElementById('result-text');
     const startScanBtn = document.getElementById('start-scan');
     const qrReaderDiv = document.getElementById('qr-reader');
@@ -52,31 +56,29 @@ document.addEventListener('DOMContentLoaded', () => {
                         resultText.innerHTML = `<span style='font-size:1.1em;color:#ff0;'>🆕 Código creado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify(nuevo, null, 2)}</pre>`;
                         resultText.className = 'success';
 
-                        // Agrega formulario para kilometros y nota
-                        const form = document.createElement('form');
-                        form.style.marginTop = '16px';
-                        form.innerHTML = `
-                          <label style='color:#fff;'>Kilómetros: <input type='number' name='kilometros' min='0' step='0.1' style='margin-bottom:8px;'></label><br>
-                          <label style='color:#fff;'>Nota: <input type='text' name='nota' maxlength='100' style='margin-bottom:8px;width:180px;'></label><br>
-                          <button type='submit' class='upload-button' style='margin-top:8px;'>Guardar datos</button>
-                        `;
-                        resultText.appendChild(form);
-
+                        // Muestra el formulario HTML ya existente
+                        const form = document.getElementById('nuevo-codigo-form');
+                        form.style.display = '';
+                        form.kilometros.value = '';
+                        form.nota.value = '';
                         form.onsubmit = function(e) {
-                          e.preventDefault();
-                          const kilometros = parseFloat(form.kilometros.value);
-                          const nota = form.nota.value.trim();
-                          db.collection("codigos").doc(decodedText).update({ kilometros, nota })
+                            e.preventDefault();
+                            const kilometros = parseFloat(form.kilometros.value);
+                            const nota = form.nota.value.trim();
+                            db.collection("codigos").doc(decodedText).update({ kilometros, nota })
                             .then(() => {
-                              resultText.innerHTML = `<span style='font-size:1.1em;color:#0f0;'>✅ Código actualizado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify({ ...nuevo, kilometros, nota }, null, 2)}</pre>`;
+                                resultText.innerHTML = `<span style='font-size:1.1em;color:#0f0;'>✅ Código actualizado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify({ ...nuevo, kilometros, nota }, null, 2)}</pre>`;
+                                form.style.display = 'none';
+                                startScanBtn.disabled = false;
+                                startScanBtn.style.display = "";
                             })
                             .catch((err) => {
-                              resultText.innerHTML += `<div style='color:#f33;margin-top:8px;'>Error al guardar: ${err}</div>`;
+                                resultText.innerHTML += `<div style='color:#f33;margin-top:8px;'>Error al guardar: ${err}</div>`;
                             });
                         };
-
-                        startScanBtn.disabled = false;
-                        startScanBtn.style.display = "";
+                        // El botón solo vuelve a aparecer tras guardar
+                        startScanBtn.disabled = true;
+                        startScanBtn.style.display = "none";
                         })
                         .catch((err) => {
                         resultText.innerText = `Error creando el código en Firestore: ${err}`;

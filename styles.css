@@ -43,3 +43,22 @@ body {
     background-color: #34d;
     color: #eee;
 }
+
+#firestore-status {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #c00;
+    box-shadow: 0 0 8px #000a;
+    border: 2px solid #222;
+    z-index: 2000;
+    transition: background 0.4s;
+}
+#firestore-status.ok {
+    background: #1ec900;
+    box-shadow: 0 0 10px #1ec90088;
+}
+
