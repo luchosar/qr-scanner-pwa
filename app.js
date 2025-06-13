@@ -1,47 +1,48 @@
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
-    const preview = document.getElementById('preview');
     const resultText = document.getElementById('result-text');
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
 
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
         resultText.textContent = "Procesando imagen...";
-        
+        resultText.className = '';
+
         const reader = new FileReader();
         reader.onload = (event) => {
-            preview.src = event.target.result;
-            scanQRCode(event.target.result);
+            const img = new window.Image();
+            img.style.display = 'none'; // Oculto
+            img.onload = async () => {
+                try {
+                    const codeReader = new ZXing.BrowserQRCodeReader();
+                    const result = await codeReader.decodeFromImageElement(img);
+                    if (result && result.text) {
+                        resultText.textContent = result.text;
+                        resultText.className = 'success';
+                    } else {
+                        resultText.textContent = '❌ No se detectó ningún código QR en la imagen.';
+                        resultText.className = 'error';
+                    }
+                } catch (err) {
+                    resultText.textContent = '❌ No se detectó ningún código QR en la imagen.';
+                    resultText.className = 'error';
+                }
+                // Limpieza: elimina el <img> oculto del DOM
+                if (img.parentNode) img.parentNode.removeChild(img);
+            };
+            img.onerror = () => {
+                resultText.textContent = 'Error al cargar la imagen';
+                resultText.className = 'error';
+            };
+            img.src = event.target.result;
+            // Necesario para decodeFromImageElement: el elemento debe estar en el DOM
+            document.body.appendChild(img);
+        };
+        reader.onerror = () => {
+            resultText.textContent = 'Error al leer el archivo de imagen';
+            resultText.className = 'error';
         };
         reader.readAsDataURL(file);
     });
-
-    function scanQRCode(imageSrc) {
-        const img = new Image();
-        img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                inversionAttempts: 'dontInvert',
-            });
-
-            if (code) {
-                resultText.textContent = code.data;
-                resultText.className = 'success';
-            } else {
-                resultText.textContent = '❌ No se detectó ningún código QR en la imagen.';
-                resultText.className = 'error';
-            }
-        };
-        img.onerror = () => {
-            resultText.textContent = 'Error al cargar la imagen';
-        };
-        img.src = imageSrc;
-    }
 });
