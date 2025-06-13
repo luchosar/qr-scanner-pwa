@@ -11,26 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
         resultText.textContent = decodedText;
         resultText.className = 'success';
         qrScanner.clear().then(() => {
-            showRestartButton();
         }).catch(error => {
             console.error("Error liberando cámara:", error);
-            showRestartButton();
         });
-    }
-
-    function showRestartButton() {
-        let btn = document.createElement('button');
-        btn.textContent = "Escanear otro código";
-        btn.className = "upload-button";
-        btn.onclick = () => {
-            scanCompleted = false;
-            resultText.textContent = "-";
-            resultText.className = "";
-            btn.remove();
-            startScan();
-        };
-        resultText.parentNode.appendChild(btn);
-        startScanBtn.style.display = "";
     }
 
     function onScanFailure(error) {

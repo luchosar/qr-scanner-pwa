@@ -3,7 +3,7 @@
 body {
     font-family: sans-serif;
     color: #bbb;
-    background: linear-gradient(#000,#222);
+    background: linear-gradient(#000,#333);
     background-repeat: no-repeat;
     background-attachment: fixed;
     min-height: 100vh;
@@ -13,10 +13,10 @@ body {
 .container {
     max-width: 600px;
     margin: auto;
-    background: #222;
+    background: #111;
     padding: 20px;
     border-radius: 15px;
-    box-shadow: 0 0 20px 5px #333;
+    box-shadow: 0 0 15px 1px #000;
 }
 
 h1 {
@@ -24,7 +24,6 @@ h1 {
     color: #ddd;
     margin-bottom: 20px;
     letter-spacing: 2px;
-    text-shadow: 0 2px 8px #000a;
 }
 
 .upload-container {
@@ -45,36 +44,10 @@ h1 {
     font-weight: bold;
     cursor: pointer;
     border: none;
+    box-shadow: 0 0 15px 1px #000;
 }
 
 .upload-button:hover {
     background-color: #34d;
     color: #eee;
-}
-
-.result {
-    text-align: center;
-    margin-top: 20px;
-    padding: 15px 30px;
-    background-color: #333;
-    border-radius: 15px;
-    border: 1.5px solid #45e;
-}
-
-.result h2 {
-    color: #45e;
-    margin-bottom: 10px;
-    font-size: 1.2em;
-}
-
-#result-text {
-    word-break: break-all;
-    padding: 15px;
-    background: #181818;
-    border-radius: 15px;
-    border: 1px solid #45e;
-    min-height: 50px;
-    color: #eee;
-    font-size: 1.1em;
-    transition: all 0.3s;
 }
