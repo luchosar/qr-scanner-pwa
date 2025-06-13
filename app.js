@@ -17,6 +17,72 @@ if (!firebase.apps.length) {
 const db = firebase.firestore();
 
 document.addEventListener('DOMContentLoaded', () => {
+    const autoSelector = document.getElementById('auto-selector');
+    const autoPiezasList = document.getElementById('auto-piezas-list');
+    let piezasPorAuto = {};
+    let piezasData = {};
+    // Cargar autos únicos y piezas al iniciar
+    db.collection("Piezas").get().then((querySnapshot) => {
+        const autosSet = new Set();
+        querySnapshot.forEach(doc => {
+            const data = doc.data();
+            piezasData[doc.id] = data;
+            if (data.auto_id) {
+                autosSet.add(data.auto_id);
+                if (!piezasPorAuto[data.auto_id]) piezasPorAuto[data.auto_id] = [];
+                piezasPorAuto[data.auto_id].push({id: doc.id, ...data});
+            }
+        });
+        // Llenar selector
+        autoSelector.innerHTML = '<option value="">Selecciona un auto...</option>' +
+            Array.from(autosSet).map(auto => `<option value="${auto}">${auto}</option>`).join('');
+    });
+    // Mostrar piezas cuando se selecciona un auto
+    autoSelector.addEventListener('change', function() {
+    const auto = autoSelector.value;
+    autoPiezasList.innerHTML = '';
+    if (auto && piezasPorAuto[auto]) {
+        // Agrupar piezas por tipo
+        const tipos = ['chasis', 'motor', 'transmision'];
+        const piezasPorTipo = { chasis: [], motor: [], transmision: [] };
+        piezasPorAuto[auto].forEach(pieza => {
+            const tipo = (pieza.tipo || '').toLowerCase();
+            if (tipos.includes(tipo)) {
+                piezasPorTipo[tipo].push(pieza);
+            }
+        });
+        // Crear contenedores de columna
+        const grid = document.createElement('div');
+        grid.className = 'piezas-grid';
+        tipos.forEach(tipo => {
+            const col = document.createElement('div');
+            col.className = 'piezas-col';
+            const title = document.createElement('div');
+            title.className = 'piezas-col-title';
+            title.textContent = tipo.charAt(0).toUpperCase() + tipo.slice(1);
+            col.appendChild(title);
+            piezasPorTipo[tipo].forEach(pieza => {
+                const btn = document.createElement('button');
+                btn.className = 'pieza-btn';
+                btn.textContent = pieza.id;
+                btn.onclick = function() {
+                    let html = `<span style='font-size:1.1em;color:#0f0;'>✅ Pieza encontrada:</span><br><b>${pieza.id}</b><div class='data-list'>`;
+                    Object.entries(pieza).forEach(([key, value]) => {
+                        html += `<div class='data-item'><span class='data-key'>${key}:</span> <span class='data-value'>${value}</span></div>`;
+                    });
+                    html += `</div>`;
+                    resultText.innerHTML = html;
+                    resultText.className = 'success';
+                    startScanBtn.disabled = false;
+                    startScanBtn.style.display = "";
+                };
+                col.appendChild(btn);
+            });
+            grid.appendChild(col);
+        });
+        autoPiezasList.appendChild(grid);
+    }
+});
     const firestoreStatus = document.getElementById('firestore-status');
     db.collection("Piezas").limit(1).get()
         .then(() => firestoreStatus.classList.add("ok"))
@@ -53,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Si no existe, lo crea
                     const now = new Date();
                     const nuevo = {
-                        creado: now.toISOString(),
+                        creado: `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}`,
                         codigo: decodedText
                     };
                     db.collection("Piezas").doc(decodedText).set(nuevo)
@@ -72,7 +138,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             const nota = form.nota.value.trim();
                             db.collection("Piezas").doc(decodedText).update({ kilometros, nota })
                             .then(() => {
-                                resultText.innerHTML = `<span style='font-size:1.1em;color:#0f0;'>✅ Código actualizado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify({ ...nuevo, kilometros, nota }, null, 2)}</pre>`;
+                                // Muestra los datos actualizados en lista visual, sin comillas
+                                let updated = { ...nuevo, kilometros, nota };
+                                let html = `<span style='font-size:1.1em;color:#0f0;'>✅ Código actualizado:</span><br><b>${decodedText}</b><div class='data-list'>`;
+                                Object.entries(updated).forEach(([key, value]) => {
+                                    html += `<div class='data-item'><span class='data-key'>${key}:</span> <span class='data-value'>${value}</span></div>`;
+                                });
+                                html += `</div>`;
+                                resultText.innerHTML = html;
                                 form.style.display = 'none';
                                 startScanBtn.disabled = false;
                                 startScanBtn.style.display = "";
@@ -135,6 +208,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     startScanBtn.addEventListener('click', () => {
         startScan();
+    });
+
+    // Búsqueda manual por código
+    const manualInput = document.getElementById('manual-search-input');
+    const manualBtn = document.getElementById('manual-search-btn');
+    function manualSearchHandler() {
+        const code = manualInput.value.trim();
+        if (!code) return;
+        manualInput.value = '';
+        scanCompleted = false;
+        // Reutiliza la lógica de búsqueda, pero sin escanear
+        resultText.innerText = "Buscando en la base de datos...";
+        resultText.className = '';
+        db.collection("Piezas").doc(code).get()
+            .then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    let html = `<span style='font-size:1.1em;color:#0f0;'>✅ Código encontrado:</span><br><b>${code}</b><div class='data-list'>`;
+                    Object.entries(data).forEach(([key, value]) => {
+                        html += `<div class='data-item'><span class='data-key'>${key}:</span> <span class='data-value'>${value}</span></div>`;
+                    });
+                    html += `</div>`;
+                    resultText.innerHTML = html;
+                    resultText.className = 'success';
+                    startScanBtn.disabled = false;
+                    startScanBtn.style.display = "";
+                } else {
+                    resultText.innerHTML = `<span style='font-size:1.1em;color:#ff0;'>⚠️ Código no encontrado:</span><br><b>${code}</b>`;
+                    resultText.className = 'error';
+                    startScanBtn.disabled = false;
+                    startScanBtn.style.display = "";
+                }
+            })
+            .catch((error) => {
+                resultText.innerText = `Error al buscar en Firestore: ${error}`;
+                resultText.className = 'error';
+                startScanBtn.disabled = false;
+                startScanBtn.style.display = "";
+            });
+    }
+    manualBtn.addEventListener('click', manualSearchHandler);
+    manualInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            manualSearchHandler();
+        }
     });
 
     // Oculta el escáner al inicio

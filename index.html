@@ -13,13 +13,17 @@
     <div id="firestore-status"></div>
     <div class="container">
         <div class="upload-container">
+            <button id="manual-search-btn" class="upload-button">Buscar</button>
+            <input id="manual-search-input" type="text" placeholder="Ingresar código manualmente"><br>
             <button id="start-scan" class="upload-button">QR</button>
-            <div id="qr-reader" style="width:100%;max-width:350px;margin:0 auto;"></div>
+            <select id="auto-selector"></select>
+            <div id="auto-piezas-list"></div>
+            <div id="qr-reader"></div>
             <p id="result-text">-</p>
-            <form id="nuevo-codigo-form" style="display:none; margin-top:16px;">
-                <label style='color:#fff;'>Kilómetros: <input type='number' name='kilometros' min='0' step='0.1' style='margin-bottom:8px;'></label><br>
-                <label style='color:#fff;'>Nota: <input type='text' name='nota' maxlength='100' style='margin-bottom:8px;width:180px;'></label><br>
-                <button type='submit' class='upload-button' style='margin-top:8px;'>Guardar datos</button>
+            <form id="nuevo-codigo-form">
+                <label class="label-white">Kilómetros: <input type='number' name='kilometros' min='0' step='0.1'></label><br>
+                <label class="label-white">Nota: <input type='text' name='nota' maxlength='100'></label><br>
+                <button type='submit' class='upload-button'>Guardar datos</button>
             </form>
         </div>
     </div>
