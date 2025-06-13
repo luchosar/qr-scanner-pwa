@@ -52,13 +52,37 @@ body {
     height: 18px;
     border-radius: 50%;
     background: #c00;
-    box-shadow: 0 0 8px #000a;
     border: 2px solid #222;
     z-index: 2000;
-    transition: background 0.4s;
 }
 #firestore-status.ok {
     background: #1ec900;
-    box-shadow: 0 0 10px #1ec90088;
+}
+
+.data-list {
+    margin: 16px auto 0 auto;
+    max-width: 350px;
+    padding: 0;
+}
+.data-item {
+    background: #eee;
+    color: #222;
+    border-radius: 7px;
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    font-size: 1em;
+    box-shadow: 0 1px 6px #0001;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.data-key {
+    font-weight: bold;
+    min-width: 90px;
+    display: inline-block;
+}
+.data-value {
+    flex: 1;
+    word-break: break-all;
 }
 

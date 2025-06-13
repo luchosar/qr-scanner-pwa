@@ -39,8 +39,13 @@ document.addEventListener('DOMContentLoaded', () => {
             .then((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
-                    // Muestra el resultado en formato bonito
-                    resultText.innerHTML = `<span style='font-size:1.1em;color:#0f0;'>✅ Código encontrado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify(data, null, 2)}</pre>`;
+                    // Muestra los datos como lista visual
+                    let html = `<span style='font-size:1.1em;color:#0f0;'>✅ Código encontrado:</span><br><b>${decodedText}</b><div class='data-list'>`;
+                    Object.entries(data).forEach(([key, value]) => {
+                        html += `<div class='data-item'><span class='data-key'>${key}:</span> <span class='data-value'>${value}</span></div>`;
+                    });
+                    html += `</div>`;
+                    resultText.innerHTML = html;
                     resultText.className = 'success';
                     startScanBtn.disabled = false;
                     startScanBtn.style.display = "";
