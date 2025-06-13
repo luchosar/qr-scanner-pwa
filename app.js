@@ -18,9 +18,9 @@ const db = firebase.firestore();
 
 document.addEventListener('DOMContentLoaded', () => {
     const firestoreStatus = document.getElementById('firestore-status');
-    db.collection("codigos").limit(1).get()
-      .then(() => firestoreStatus.classList.add("ok"))
-      .catch(() => firestoreStatus.classList.remove("ok"));
+    db.collection("Piezas").limit(1).get()
+        .then(() => firestoreStatus.classList.add("ok"))
+        .catch(() => firestoreStatus.classList.remove("ok"));
     const resultText = document.getElementById('result-text');
     const startScanBtn = document.getElementById('start-scan');
     const qrReaderDiv = document.getElementById('qr-reader');
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         qrScanner.clear().then(() => {}).catch(() => {});
 
-        db.collection("codigos").doc(decodedText).get()
+        db.collection("Piezas").doc(decodedText).get()
             .then((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         creado: now.toISOString(),
                         codigo: decodedText
                     };
-                    db.collection("codigos").doc(decodedText).set(nuevo)
+                    db.collection("Piezas").doc(decodedText).set(nuevo)
                         .then(() => {
                         resultText.innerHTML = `<span style='font-size:1.1em;color:#ff0;'>🆕 Código creado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify(nuevo, null, 2)}</pre>`;
                         resultText.className = 'success';
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             e.preventDefault();
                             const kilometros = parseFloat(form.kilometros.value);
                             const nota = form.nota.value.trim();
-                            db.collection("codigos").doc(decodedText).update({ kilometros, nota })
+                            db.collection("Piezas").doc(decodedText).update({ kilometros, nota })
                             .then(() => {
                                 resultText.innerHTML = `<span style='font-size:1.1em;color:#0f0;'>✅ Código actualizado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify({ ...nuevo, kilometros, nota }, null, 2)}</pre>`;
                                 form.style.display = 'none';
