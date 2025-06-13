@@ -27,38 +27,41 @@ h1 {
     margin-bottom: 20px;
 }
 
-.scanner-container {
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto 20px;
-    border: 2px solid #4a90e2;
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
+.upload-container {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
-#qr-video {
-    width: 100%;
-    display: block;
+#file-input {
+    display: none;
 }
 
-#start-button {
-    display: block;
-    width: 100%;
-    max-width: 200px;
-    margin: 0 auto 20px;
+.upload-button {
+    display: inline-block;
     padding: 12px 20px;
     background-color: #4a90e2;
     color: white;
-    border: none;
     border-radius: 5px;
-    font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
-#start-button:hover {
+.upload-button:hover {
     background-color: #357abd;
+}
+
+.image-preview {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 20px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#preview {
+    width: 100%;
+    display: block;
 }
 
 .result {

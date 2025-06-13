@@ -11,11 +11,15 @@
 <body>
     <div class="container">
         <h1>Escaner QR</h1>
-        <div class="scanner-container">
-            <video id="qr-video" playsinline></video>
-            <canvas id="qr-canvas" hidden></canvas>
+        <div class="upload-container">
+            <input type="file" id="file-input" accept="image/*" capture="camera">
+            <label for="file-input" class="upload-button">
+                <span>Seleccionar imagen o tomar foto</span>
+            </label>
         </div>
-        <button id="start-button">Iniciar Escaneo</button>
+        <div class="image-preview">
+            <img id="preview" src="" alt="Vista previa">
+        </div>
         <div class="result">
             <h2>Resultado:</h2>
             <p id="result-text">-</p>
