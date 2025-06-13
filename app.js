@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const resultText = document.getElementById('result-text');
-    
+    const startScanBtn = document.getElementById('start-scan');
+    const qrReaderDiv = document.getElementById('qr-reader');
+    let qrScanner = null;
     let scanCompleted = false;
 
     function onScanSuccess(decodedText, decodedResult) {
@@ -8,7 +10,27 @@ document.addEventListener('DOMContentLoaded', () => {
         scanCompleted = true;
         resultText.textContent = decodedText;
         resultText.className = 'success';
-        qrScanner.clear(); // Detiene el escaneo y libera la cámara
+        qrScanner.clear().then(() => {
+            showRestartButton();
+        }).catch(error => {
+            console.error("Error liberando cámara:", error);
+            showRestartButton();
+        });
+    }
+
+    function showRestartButton() {
+        let btn = document.createElement('button');
+        btn.textContent = "Escanear otro código";
+        btn.className = "upload-button";
+        btn.onclick = () => {
+            scanCompleted = false;
+            resultText.textContent = "-";
+            resultText.className = "";
+            btn.remove();
+            startScan();
+        };
+        resultText.parentNode.appendChild(btn);
+        startScanBtn.style.display = "";
     }
 
     function onScanFailure(error) {
@@ -18,18 +40,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    const qrScanner = new Html5QrcodeScanner("qr-reader", {
-        fps: 10,
-        qrbox: 250,
-        rememberLastUsedCamera: true,
-        showTorchButtonIfSupported: true,
-        showZoomSliderIfSupported: true,
-        aspectRatio: 1,
-        // Forzar cámara trasera si es posible
-        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-        // facingMode solo funciona en algunos navegadores
-        facingMode: { exact: "environment" }
-    }, false);
+    function startScan() {
+        if (qrScanner) {
+            qrScanner.clear().catch(() => {});
+        }
+        qrReaderDiv.innerHTML = "";
+        qrScanner = new Html5QrcodeScanner("qr-reader", {
+            fps: 10,
+            qrbox: 250,
+            rememberLastUsedCamera: true,
+            showTorchButtonIfSupported: true,
+            showZoomSliderIfSupported: true,
+            aspectRatio: 1,
+            supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+            facingMode: { exact: "environment" }
+        }, false);
+        scanCompleted = false;
+        startScanBtn.style.display = "none";
+        qrScanner.render(onScanSuccess, onScanFailure);
+    }
 
-    qrScanner.render(onScanSuccess, onScanFailure);
+    startScanBtn.addEventListener('click', () => {
+        startScan();
+    });
+
+    // Oculta el escáner al inicio
+    startScanBtn.style.display = "";
+    qrReaderDiv.innerHTML = "";
 });

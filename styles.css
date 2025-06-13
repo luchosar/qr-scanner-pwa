@@ -4,6 +4,9 @@ body {
     font-family: sans-serif;
     color: #bbb;
     background: linear-gradient(#000,#222);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
     padding: 20px;
 }
 
@@ -53,17 +56,15 @@ h1 {
     text-align: center;
     margin-top: 20px;
     padding: 15px 30px;
-    background-color: #1a1a1a;
+    background-color: #333;
     border-radius: 15px;
     border: 1.5px solid #45e;
-    box-shadow: 0 0 10px #ff2d2d22;
 }
 
 .result h2 {
     color: #45e;
     margin-bottom: 10px;
     font-size: 1.2em;
-    text-shadow: 0 1px 4px #000a;
 }
 
 #result-text {
