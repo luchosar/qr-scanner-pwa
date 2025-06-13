@@ -13,17 +13,10 @@ body {
 .container {
     max-width: 600px;
     margin: auto;
-    background: #111;
+    background: #555;
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 0 15px 1px #000;
-}
-
-h1 {
-    text-align: center;
-    color: #ddd;
-    margin-bottom: 20px;
-    letter-spacing: 2px;
 }
 
 .upload-container {
@@ -44,7 +37,6 @@ h1 {
     font-weight: bold;
     cursor: pointer;
     border: none;
-    box-shadow: 0 0 15px 1px #000;
 }
 
 .upload-button:hover {

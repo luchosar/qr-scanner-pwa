@@ -26,31 +26,30 @@ document.addEventListener('DOMContentLoaded', () => {
     function onScanSuccess(decodedText, decodedResult) {
         if (scanCompleted) return;
         scanCompleted = true;
-        resultText.textContent = "Buscando en la base de datos...";
+        resultText.innerText = "Buscando en la base de datos...";
         resultText.className = '';
 
         qrScanner.clear().then(() => {}).catch(() => {});
 
-        // Busca el código en Firestore (colección 'codigos', documento con ID igual al código leído)
         db.collection("codigos").doc(decodedText).get()
             .then((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                resultText.textContent = `✅ Código encontrado: ${decodedText}\n\n${JSON.stringify(data, null, 2)}`;
-                resultText.className = 'success';
-            } else {
-                resultText.textContent = `❌ Código no encontrado en la base de datos.`;
-                resultText.className = 'error';
-            }
-            // Habilita el botón para volver a escanear
-            startScanBtn.disabled = false;
-            startScanBtn.style.display = "";
+                if (doc.exists) {
+                    const data = doc.data();
+                    // Muestra el resultado en formato bonito
+                    resultText.innerHTML = `<span style='font-size:1.1em;color:#0f0;'>✅ Código encontrado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify(data, null, 2)}</pre>`;
+                    resultText.className = 'success';
+                } else {
+                    resultText.innerText = `❌ Código no encontrado en la base de datos.`;
+                    resultText.className = 'error';
+                }
+                startScanBtn.disabled = false;
+                startScanBtn.style.display = "";
             })
             .catch((error) => {
-            resultText.textContent = `Error al buscar en Firestore: ${error}`;
-            resultText.className = 'error';
-            startScanBtn.disabled = false;
-            startScanBtn.style.display = "";
+                resultText.innerText = `Error al buscar en Firestore: ${error}`;
+                resultText.className = 'error';
+                startScanBtn.disabled = false;
+                startScanBtn.style.display = "";
             });
     }
 
@@ -68,6 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
             qrScanner.clear().catch(() => {});
         }
         qrReaderDiv.innerHTML = "";
+        resultText.innerText = "-";
+        resultText.className = "";
         qrScanner = new Html5QrcodeScanner("qr-reader", {
             fps: 10,
             qrbox: 250,
