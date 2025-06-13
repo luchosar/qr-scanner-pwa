@@ -33,8 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (code) {
                 resultText.textContent = code.data;
+                resultText.className = 'success';
             } else {
-                resultText.textContent = 'No se encontró ningún código QR. Intenta con otra imagen.';
+                resultText.textContent = '❌ No se detectó ningún código QR en la imagen.';
+                resultText.className = 'error';
             }
         };
         img.onerror = () => {
