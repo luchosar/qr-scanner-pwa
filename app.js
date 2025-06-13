@@ -38,12 +38,53 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Muestra el resultado en formato bonito
                     resultText.innerHTML = `<span style='font-size:1.1em;color:#0f0;'>✅ Código encontrado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify(data, null, 2)}</pre>`;
                     resultText.className = 'success';
+                    startScanBtn.disabled = false;
+                    startScanBtn.style.display = "";
                 } else {
-                    resultText.innerText = `❌ Código no encontrado en la base de datos.`;
-                    resultText.className = 'error';
+                    // Si no existe, lo crea
+                    const now = new Date();
+                    const nuevo = {
+                        creado: now.toISOString(),
+                        codigo: decodedText
+                    };
+                    db.collection("codigos").doc(decodedText).set(nuevo)
+                        .then(() => {
+                        resultText.innerHTML = `<span style='font-size:1.1em;color:#ff0;'>🆕 Código creado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify(nuevo, null, 2)}</pre>`;
+                        resultText.className = 'success';
+
+                        // Agrega formulario para kilometros y nota
+                        const form = document.createElement('form');
+                        form.style.marginTop = '16px';
+                        form.innerHTML = `
+                          <label style='color:#fff;'>Kilómetros: <input type='number' name='kilometros' min='0' step='0.1' style='margin-bottom:8px;'></label><br>
+                          <label style='color:#fff;'>Nota: <input type='text' name='nota' maxlength='100' style='margin-bottom:8px;width:180px;'></label><br>
+                          <button type='submit' class='upload-button' style='margin-top:8px;'>Guardar datos</button>
+                        `;
+                        resultText.appendChild(form);
+
+                        form.onsubmit = function(e) {
+                          e.preventDefault();
+                          const kilometros = parseFloat(form.kilometros.value);
+                          const nota = form.nota.value.trim();
+                          db.collection("codigos").doc(decodedText).update({ kilometros, nota })
+                            .then(() => {
+                              resultText.innerHTML = `<span style='font-size:1.1em;color:#0f0;'>✅ Código actualizado:</span><br><b>${decodedText}</b><pre style='background:none;color:#eee;font-size:1em;margin-top:10px;'>${JSON.stringify({ ...nuevo, kilometros, nota }, null, 2)}</pre>`;
+                            })
+                            .catch((err) => {
+                              resultText.innerHTML += `<div style='color:#f33;margin-top:8px;'>Error al guardar: ${err}</div>`;
+                            });
+                        };
+
+                        startScanBtn.disabled = false;
+                        startScanBtn.style.display = "";
+                        })
+                        .catch((err) => {
+                        resultText.innerText = `Error creando el código en Firestore: ${err}`;
+                        resultText.className = 'error';
+                        startScanBtn.disabled = false;
+                        startScanBtn.style.display = "";
+                        });
                 }
-                startScanBtn.disabled = false;
-                startScanBtn.style.display = "";
             })
             .catch((error) => {
                 resultText.innerText = `Error al buscar en Firestore: ${error}`;

@@ -3,7 +3,7 @@
 body {
     font-family: sans-serif;
     color: #bbb;
-    background: linear-gradient(#000,#333);
+    background: linear-gradient(#222,#000);
     background-repeat: no-repeat;
     background-attachment: fixed;
     min-height: 100vh;
@@ -13,7 +13,7 @@ body {
 .container {
     max-width: 600px;
     margin: auto;
-    background: #555;
+    background: #333;
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 0 15px 1px #000;
@@ -33,7 +33,7 @@ body {
     padding: 12px 20px;
     background-color: #45e;
     color: #fff;
-    border-radius: 15px;
+    border-radius: 5px;
     font-weight: bold;
     cursor: pointer;
     border: none;
