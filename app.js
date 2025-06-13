@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 };
                                 // El botón solo vuelve a aparecer tras guardar
                                 startScanBtn.disabled = true;
-                                startScanBtn.style.display = "none";
+                                
                             })
                             .catch((err) => {
                                 resultText.innerText = `Error creando el código en Firestore: ${err}`;
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         };
                         // El botón solo vuelve a aparecer tras guardar
                         startScanBtn.disabled = true;
-                        startScanBtn.style.display = "none";
+                        
                         })
                         .catch((err) => {
                         resultText.innerText = `Error creando el código en Firestore: ${err}`;
@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, false);
         scanCompleted = false;
         startScanBtn.disabled = true;
-        startScanBtn.style.display = "none";
+        
         qrScanner.render(onScanSuccess, onScanFailure);
     }
 
