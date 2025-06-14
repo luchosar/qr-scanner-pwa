@@ -87,9 +87,9 @@ startScanBtn.addEventListener('click', function() {
     resultText.textContent = 'Escanea el código de la pieza...';
     resultText.className = '';
     qrScanner = new Html5Qrcode("qr-reader");
-    const config = { fps: 10, qrbox: 250, aspectRatio: 1.0, facingMode: "user" };
+    const config = { fps: 10, qrbox: 250, aspectRatio: 1.0, facingMode: "environment" };
     qrScanner.start(
-        { facingMode: "user" },
+        { facingMode: "environment" },
         config,
         (decodedText, decodedResult) => {
             if (scanCompleted) return;
@@ -155,9 +155,42 @@ function mostrarDatosPieza(id, data) {
         html += `<div class='data-item'><span class='data-key'>${key}:</span> <span class='data-value'>${value}</span></div>`;
     });
     html += `</div>`;
+    // Mostrar historial compacto debajo
+    obtenerHistorialPieza(id).then(historial => {
+        if (historial.length > 0) {
+            let histHtml = `<div class='historial-list' style='margin-top:16px;'><span style='font-weight:bold;color:#ff0;'>Historial de la pieza:</span>`;
+            histHtml += `<table style='width:100%;font-size:0.97em;margin-top:6px;border-collapse:collapse;'>`;
+            histHtml += `<thead><tr><th style='text-align:left;'>Fecha</th><th style='text-align:left;'>Carrera</th><th style='text-align:right;'>Km</th></tr></thead><tbody>`;
+            // Más reciente primero
+            historial.sort((a, b) => b.fecha.localeCompare(a.fecha)).forEach(item => {
+                // Buscar campo km (puede ser km, Km, kilometros, Kilometros, etc)
+                let km = item.km ?? item.Km ?? item.kilometros ?? item.Kilometros ?? item.KMS ?? '-';
+                histHtml += `<tr>` +
+                    `<td style='text-align:left;'>${item.fecha}</td>` +
+                    `<td style='text-align:left;'>${item.Carrera}</td>` +
+                    `<td style='text-align:right;'>${km !== undefined && km !== null ? km : '-'}</td>` +
+                `</tr>`;
+            });
+            histHtml += `</tbody></table></div>`;
+            resultText.innerHTML += histHtml;
+        }
+    });
     resultText.innerHTML = html;
     resultText.className = 'success';
 }
+
+// Consulta la subcolección historial de una pieza
+async function obtenerHistorialPieza(piezaId) {
+    try {
+        const snap = await db.collection("Piezas").doc(piezaId).collection("Historial").get();
+        // Cada doc: id = fecha, campos: carrera, km
+        return snap.docs.map(doc => ({ fecha: doc.id, ...doc.data() }));
+    } catch (e) {
+        return [];
+    }
+}
+
+
 
 // --- Utilidad: Fecha de hoy DD/MM/YYYY ---
 function obtenerFechaHoy() {
